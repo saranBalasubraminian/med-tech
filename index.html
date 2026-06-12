@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMI Health Summary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white: #ffffff;
+      --off: #f7f8f9;
+      --border: #e8eaed;
+      --muted: #6b7280;
+      --text: #111827;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--off);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .logo-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* Card */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Input grid */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 40px 0 12px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    select { padding-right: 12px; cursor: pointer; }
+
+    input[type="number"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .unit {
+      position: absolute;
+      right: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    /* Unit toggle */
+    .unit-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.25rem;
+    }
+
+    .unit-btn {
+      flex: 1;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .unit-btn.active {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Calculate button */
+    .btn-calc {
+      width: 100%;
+      height: 50px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-calc:hover { background: #1d4ed8; }
+    .btn-calc:active { transform: scale(0.99); }
+
+    /* Results */
+    #results { display: none; }
+
+    /* BMI Hero */
+    .bmi-hero {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+    }
+
+    .bmi-number-wrap { text-align: center; flex-shrink: 0; }
+
+    .bmi-number {
+      font-family: 'DM Serif Display', serif;
+      font-size: 64px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .bmi-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .bmi-divider {
+      width: 1px;
+      height: 80px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .bmi-info { flex: 1; }
+
+    .bmi-category {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .bmi-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Range bar */
+    .range-bar-wrap { margin: 1rem 0; }
+
+    .range-bar {
+      height: 8px;
+      border-radius: 99px;
+      background: linear-gradient(to right, #3b82f6 0%, #22c55e 25%, #eab308 65%, #ef4444 100%);
+      position: relative;
+      margin-bottom: 6px;
+    }
+
+    .range-marker {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+      transition: left 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Metric grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .metric {
+      background: var(--off);
+      border-radius: var(--radius-sm);
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+    }
+
+    .metric-val {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Health summary list */
+    .summary-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .summary-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .summary-content { flex: 1; }
+
+    .summary-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .summary-value {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Tips */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tip {
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .tip-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .tip-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .disclaimer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2rem;
+      line-height: 1.6;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate { animation: fadeUp 0.4s ease both; }
+
+    @media (max-width: 500px) {
+      .input-grid { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      .tips-grid { grid-template-columns: 1fr; }
+      .bmi-hero { flex-direction: column; text-align: center; }
+      .bmi-divider { width: 80px; height: 1px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo"><span class="logo-dot"></span> Health Tools</div>
+    <h1>BMI Health Summary</h1>
+    <p>Enter your details to get a full picture of your health metrics.</p>
+  </header>
+
+  <!-- Input Card -->
+  <div class="card">
+    <div class="card-title">Your Details</div>
+
+    <div class="unit-toggle">
+      <button class="unit-btn active" id="btn-metric" onclick="setUnit('metric')">Metric (kg / cm)</button>
+      <button class="unit-btn" id="btn-imperial" onclick="setUnit('imperial')">Imperial (lbs / ft)</button>
+    </div>
+
+    <div class="input-grid">
+      <div class="field">
+        <label for="age">Age</label>
+        <div class="input-wrap">
+          <input type="number" id="age" placeholder="25" min="1" max="120" />
+          <span class="unit">yrs</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="gender">Biological sex</label>
+        <select id="gender">
+          <option value="">Select</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="field" id="height-metric-field">
+        <label for="height-cm">Height</label>
+        <div class="input-wrap">
+          <input type="number" id="height-cm" placeholder="170" min="50" max="300" />
+          <span class="unit">cm</span>
+        </div>
+      </div>
+
+      <div class="field" id="height-ft-field" style="display:none;">
+        <label>Height</label>
+        <div style="display:flex;gap:6px;">
+          <div class="input-wrap" style="flex:1">
+            <input type="number" id="height-ft" placeholder="5" min="1" max="8" />
+            <span class="unit">ft</span>
+          </div>
+          <div class="input-wrap" style="flex:1">
+            <input type="number" id="height-in" placeholder="7" min="0" max="11" />
+            <span class="unit">in</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="weight" id="weight-label">Weight</label>
+        <div class="input-wrap">
+          <input type="number" id="weight" placeholder="70" min="1" max="500" />
+          <span class="unit" id="weight-unit">kg</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="activity">Activity level</label>
+        <select id="activity">
+          <option value="1.2">Sedentary (little/no exercise)</option>
+          <option value="1.375">Light (1–3 days/week)</option>
+          <option value="1.55" selected>Moderate (3–5 days/week)</option>
+          <option value="1.725">Active (6–7 days/week)</option>
+          <option value="1.9">Very active (athlete)</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calculate()">Calculate health summary</button>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <!-- BMI Hero -->
+    <div class="card animate" id="bmi-card">
+      <div class="card-title">Body Mass Index</div>
+      <div class="bmi-hero" id="bmi-hero">
+        <div class="bmi-number-wrap">
+          <div class="bmi-number" id="bmi-val">—</div>
+          <div class="bmi-label" id="bmi-category-short">—</div>
+        </div>
+        <div class="bmi-divider"></div>
+        <div class="bmi-info">
+          <div class="bmi-category" id="bmi-category-full">—</div>
+          <div class="bmi-desc" id="bmi-desc">—</div>
+        </div>
+      </div>
+
+      <div class="range-bar-wrap">
+        <div class="range-bar">
+          <div class="range-marker" id="range-marker" style="left:0%; background:#3b82f6;"></div>
+        </div>
+        <div class="range-labels">
+          <span>Underweight<br>&lt;18.5</span>
+          <span style="text-align:center">Normal<br>18.5–24.9</span>
+          <span style="text-align:center">Overweight<br>25–29.9</span>
+          <span style="text-align:right">Obese<br>30+</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="card animate" style="animation-delay:0.08s">
+      <div class="card-title">Key Metrics</div>
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-val" id="m-calories">—</div>
+          <div class="metric-label">Daily calories (TDEE)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="m-ideal">—</div>
+          <div class="metric-label">Ideal weight (kg)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" id="m-bmr">—</div>
+          <div class="metric-label">Resting calories (BMR)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Health Summary -->
+    <div class="card animate" style="animation-delay:0.16s">
+      <div class="card-title">Full Health Summary</div>
+      <div class="summary-list" id="summary-list"></div>
+    </div>
+
+    <!-- Tips -->
+    <div class="card animate" style="animation-delay:0.24s">
+      <div class="card-title">Personalised Tips</div>
+      <div class="tips-grid" id="tips-grid"></div>
+    </div>
+
+  </div>
+
+  <p class="disclaimer">
+    This tool is for informational purposes only and does not constitute medical advice.<br>
+    Consult a qualified healthcare professional for personalised guidance.
+  </p>
+
+</div>
+
+<script>
+  let currentUnit = 'metric';
+
+  function setUnit(u) {
+    currentUnit = u;
+    document.getElementById('btn-metric').classList.toggle('active', u === 'metric');
+    document.getElementById('btn-imperial').classList.toggle('active', u === 'imperial');
+    document.getElementById('height-metric-field').style.display = u === 'metric' ? '' : 'none';
+    document.getElementById('height-ft-field').style.display   = u === 'imperial' ? '' : 'none';
+    document.getElementById('weight-unit').textContent = u === 'metric' ? 'kg' : 'lbs';
+    document.getElementById('weight').placeholder = u === 'metric' ? '70' : '154';
+  }
+
+  function getHeightCm() {
+    if (currentUnit === 'metric') {
+      return parseFloat(document.getElementById('height-cm').value);
+    } else {
+      const ft = parseFloat(document.getElementById('height-ft').value) || 0;
+      const ins = parseFloat(document.getElementById('height-in').value) || 0;
+      return (ft * 12 + ins) * 2.54;
+    }
+  }
+
+  function getWeightKg() {
+    const w = parseFloat(document.getElementById('weight').value);
+    return currentUnit === 'metric' ? w : w * 0.453592;
+  }
+
+  function calculate() {
+    const age      = parseInt(document.getElementById('age').value);
+    const gender   = document.getElementById('gender').value;
+    const activity = parseFloat(document.getElementById('activity').value);
+    const heightCm = getHeightCm();
+    const weightKg = getWeightKg();
+
+    if (!age || !gender || !heightCm || !weightKg) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    const heightM = heightCm / 100;
+    const bmi     = weightKg / (heightM * heightM);
+    const bmr     = gender === 'male'
+      ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5
+      : 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+    const tdee    = bmr * activity;
+
+    const idealLow  = 18.5 * heightM * heightM;
+    const idealHigh = 24.9 * heightM * heightM;
+    const idealMid  = ((idealLow + idealHigh) / 2).toFixed(1);
+
+    // Category
+    let cat, catShort, desc, color, markerColor, markerPos;
+    if (bmi < 18.5) {
+      cat = 'Underweight'; catShort = 'UNDER';
+      desc = 'Your BMI suggests you may be underweight. Focus on nutrient-dense foods and consult a doctor if concerned.';
+      color = '#eff6ff'; markerColor = '#3b82f6'; markerPos = Math.max(2, (bmi / 18.5) * 20);
+    } else if (bmi < 25) {
+      cat = 'Healthy weight'; catShort = 'NORMAL';
+      desc = 'Great — your BMI falls within the healthy range. Maintaining this through balanced diet and regular activity is key.';
+      color = '#ecfdf5'; markerColor = '#22c55e'; markerPos = 20 + ((bmi - 18.5) / 6.4) * 25;
+    } else if (bmi < 30) {
+      cat = 'Overweight'; catShort = 'OVER';
+      desc = 'Your BMI is slightly above the healthy range. Small consistent changes in diet and activity can make a meaningful difference.';
+      color = '#fffbeb'; markerColor = '#eab308'; markerPos = 45 + ((bmi - 25) / 5) * 20;
+    } else {
+      cat = 'Obese'; catShort = 'OBESE';
+      desc = 'Your BMI falls in the obese range. Speaking with a healthcare provider about a personalised plan is strongly recommended.';
+      color = '#fef2f2'; markerColor = '#ef4444'; markerPos = Math.min(97, 65 + ((bmi - 30) / 10) * 32);
+    }
+
+    // Weight status relative to ideal
+    const diff = weightKg - parseFloat(idealMid);
+    const diffText = diff > 0
+      ? `${Math.abs(diff).toFixed(1)} kg above ideal midpoint`
+      : diff < 0
+        ? `${Math.abs(diff).toFixed(1)} kg below ideal midpoint`
+        : 'At ideal midpoint';
+
+    // Calorie targets
+    const lossCals  = Math.round(tdee - 500);
+    const gainCals  = Math.round(tdee + 300);
+    const maintCals = Math.round(tdee);
+
+    // Body fat estimate (US Navy simple formula approximation)
+    const bfEstimate = gender === 'male'
+      ? (1.20 * bmi + 0.23 * age - 16.2).toFixed(1)
+      : (1.20 * bmi + 0.23 * age - 5.4).toFixed(1);
+
+    // Protein target
+    const proteinG = Math.round(weightKg * 1.6);
+
+    // Water intake
+    const waterL = (weightKg * 0.033).toFixed(1);
+
+    // Render BMI hero
+    document.getElementById('bmi-val').textContent = bmi.toFixed(1);
+    document.getElementById('bmi-category-short').textContent = catShort;
+    document.getElementById('bmi-category-full').textContent  = cat;
+    document.getElementById('bmi-desc').textContent = desc;
+    document.getElementById('bmi-hero').style.background = color;
+    document.getElementById('range-marker').style.left = markerPos + '%';
+    document.getElementById('range-marker').style.background = markerColor;
+
+    // Metrics
+    document.getElementById('m-calories').textContent = maintCals.toLocaleString();
+    document.getElementById('m-ideal').textContent    = `${idealLow.toFixed(0)}–${idealHigh.toFixed(0)}`;
+    document.getElementById('m-bmr').textContent      = Math.round(bmr).toLocaleString();
+
+    // Summary list
+    const summaryData = [
+      { icon: '⚖️', bg: '#eff6ff', title: 'Weight vs ideal range', value: `Ideal range for your height: ${idealLow.toFixed(1)}–${idealHigh.toFixed(1)} kg. You are ${diffText}.` },
+      { icon: '🔥', bg: '#fff7ed', title: 'Daily calorie needs (TDEE)', value: `Maintenance: ${maintCals} kcal · Weight loss: ${lossCals} kcal · Weight gain: ${gainCals} kcal` },
+      { icon: '💪', bg: '#f5f3ff', title: 'Daily protein target', value: `${proteinG}g per day (based on 1.6g/kg body weight) to support muscle and overall health.` },
+      { icon: '💧', bg: '#ecfeff', title: 'Daily water intake', value: `Aim for ${waterL} litres per day. Adjust upward in heat or during exercise.` },
+      { icon: '📊', bg: '#fdf4ff', title: 'Estimated body fat %', value: `~${bfEstimate}% (rough estimate using BMI method). DEXA scan gives accurate measurement.` },
+      { icon: '🫀', bg: '#fff1f2', title: 'Resting metabolic rate (BMR)', value: `${Math.round(bmr)} kcal/day is the energy your body needs at complete rest — your baseline.` },
+    ];
+
+    document.getElementById('summary-list').innerHTML = summaryData.map(s => `
+      <div class="summary-item">
+        <div class="summary-icon" style="background:${s.bg}">${s.icon}</div>
+        <div class="summary-content">
+          <div class="summary-title">${s.title}</div>
+          <div class="summary-value">${s.value}</div>
+        </div>
+      </div>
+    `).join('');
+
+    // Tips
+    const tips = getTips(bmi, gender, age, bfEstimate, activity);
+    document.getElementById('tips-grid').innerHTML = tips.map(t => `
+      <div class="tip" style="background:${t.bg};border-color:${t.border}">
+        <div class="tip-label" style="color:${t.accent}">${t.label}</div>
+        <div class="tip-text">${t.text}</div>
+      </div>
+    `).join('');
+
+    // Show results
+    const res = document.getElementById('results');
+    res.style.display = 'block';
+    setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
+
+  function getTips(bmi, gender, age, bf, activity) {
+    const tips = [];
+
+    if (bmi < 18.5) {
+      tips.push({ label: 'Nutrition', bg: '#eff6ff', border: '#bfdbfe', accent: '#1d4ed8', text: 'Increase calorie intake with whole foods — nuts, avocado, legumes, whole grains, and lean proteins.' });
+      tips.push({ label: 'Exercise', bg: '#f5f3ff', border: '#ddd6fe', accent: '#6d28d9', text: 'Prioritise resistance training 3×/week to build muscle mass alongside increasing calories.' });
+    } else if (bmi < 25) {
+      tips.push({ label: 'Maintain', bg: '#ecfdf5', border: '#a7f3d0', accent: '#065f46', text: 'Keep your current routine. Focus on consistency over perfection — small daily habits matter most.' });
+      tips.push({ label: 'Longevity', bg: '#fff7ed', border: '#fed7aa', accent: '#b45309', text: 'Add 150 min/week of moderate cardio and 2 strength sessions to maintain metabolic health long term.' });
+    } else if (bmi < 30) {
+      tips.push({ label: 'Diet', bg: '#fffbeb', border: '#fde68a', accent: '#b45309', text: 'A 500 kcal/day deficit leads to ~0.5 kg/week loss. Start with reducing ultra-processed foods and sugary drinks.' });
+      tips.push({ label: 'Movement', bg: '#ecfdf5', border: '#a7f3d0', accent: '#065f46', text: 'Walking 8,000–10,000 steps/day is one of the most evidence-backed habits for sustained weight management.' });
+    } else {
+      tips.push({ label: 'First steps', bg: '#fef2f2', border: '#fecaca', accent: '#991b1b', text: 'Small, sustainable changes beat drastic diets. Start with portion awareness and removing liquid calories.' });
+      tips.push({ label: 'Medical', bg: '#fff7ed', border: '#fed7aa', accent: '#b45309', text: 'Talk to a GP or registered dietitian. They can rule out hormonal factors and create a safe plan.' });
+    }
+
+    if (age > 40) {
+      tips.push({ label: 'Age & muscle', bg: '#f5f3ff', border: '#ddd6fe', accent: '#6d28d9', text: 'After 40, muscle loss accelerates. Strength training 2–3×/week and adequate protein (1.6g/kg) are essential.' });
+    } else {
+      tips.push({ label: 'Sleep', bg: '#f0fdf4', border: '#bbf7d0', accent: '#15803d', text: '7–9 hours of sleep directly impacts hunger hormones (ghrelin and leptin). Poor sleep can sabotage diet efforts.' });
+    }
+
+    tips.push({ label: 'Hydration', bg: '#ecfeff', border: '#a5f3fc', accent: '#0e7490', text: 'Drinking water before meals reduces calorie intake. Aim for urine that is pale yellow — a reliable hydration indicator.' });
+
+    return tips.slice(0, 4);
+  }
+</script>
+</body>
+</html>
