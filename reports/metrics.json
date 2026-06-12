@@ -1,0 +1,28 @@
+{
+  "logistic_regression": {
+    "accuracy": 1.0,
+    "confusion_matrix": [
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        2
+      ]
+    ]
+  },
+  "random_forest": {
+    "accuracy": 0.75,
+    "confusion_matrix": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        2
+      ]
+    ]
+  }
+}

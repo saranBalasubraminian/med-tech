@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+data/raw/*.csv
+!data/raw/sample_diabetes.csv
+data/processed/*.csv
+models/*.joblib
+models/*.pkl
